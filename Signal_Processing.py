@@ -26,6 +26,8 @@ def get_data(filename: str) -> dict:
 
 #define fit
 
+#THIS IS A TEST
+
 def fit_func(r, k, b):
         return k/r**2 + b
 
