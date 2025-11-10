@@ -216,4 +216,4 @@ def retrieve_AM_data(filename, carrier_freq) -> dict:
     # inverse fourier
 
     # original_data_signal = ifft(fft_am_wave)
-     return original_data_signal
+     #return original_data_signal
