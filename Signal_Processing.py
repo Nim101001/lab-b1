@@ -4,6 +4,7 @@ import pandas as pn
 from scipy.optimize import curve_fit
 from scipy.signal import find_peaks
 from scipy.optimize import curve_fit
+import scipy.interpolate as interp
 
 # 'frequency2hz.xlsx'
 # 'frequency75hz.xlsx'
@@ -198,13 +199,20 @@ def fourier_trans(data: list, period) -> tuple:
     return output_data, period
 
 BG_NOISE = pn.read_excel("noise.xlsx")
-NOISE_FFT = fourier_trans(BG_NOISE.iloc[:,1].tolist(), 0.0002)
+fft_noise_dict = fourier_trans(BG_NOISE.iloc[:,1].tolist(), 0.0002)[0]
+noise_freqs = sorted([f for f in fft_noise_dict.keys() if f>=0])
+noise_amps = [fft_noise_dict[f] for f in noise_freqs]
+NOISE_INTERP = interp.interp1d(noise_freqs, noise_amps, bounds_error=False, fill_value=0)
 
 def noise_reduction(data: dict) -> dict:
      # recieves a dict of freq:volt values in frequency doamin
      new_data = {}
-     for freq in data.keys():
-         new_data[freq] = data[freq] - NOISE_FFT[freq]
+     for freq, amp in data.items():
+         if freq >= 0:
+             estimated_noise = NOISE_INTERP(freq)
+             new_data[freq] = max(0, amp - estimated_noise)
+         else:
+             new_data[freq] = amp
      return new_data
 
 # Aliasing:
@@ -216,11 +224,11 @@ def alias_plot(filename):
         interval = time_vals[1] - time_vals[0]
         volt_vals = df.iloc[:,1].tolist()
         meas_spectrum = fourier_trans(volt_vals, interval)[0]
-
+        filtered_spectrum = noise_reduction(meas_spectrum)
         #plot:
         x_data = []
         y_data = []
-        for freq, amp in meas_spectrum.items():
+        for freq, amp in filtered_spectrum.items():
             if freq >= 0:
                 x_data.append(freq)
                 y_data.append(amp)
