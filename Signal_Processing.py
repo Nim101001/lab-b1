@@ -241,6 +241,7 @@ def alias_plot(filename):
         plt.xlabel("Frequency (Hz)")
         plt.ylabel("Amplitude (V)")
         plt.grid(True)
+        plt.savefig(f"{name}.png")
         plt.show()
 
 alias_plot("alias.xlsx")
