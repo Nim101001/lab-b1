@@ -67,7 +67,8 @@ def sinc(w:float,A:float,T:float):
 def sinc2(w:float,A:float,T:float):
     return sinc(w,A,T)**2
 
-def tri_fourier_fit(x)
+def tri_fourier_fit(x):
+    None
 
 def fit_func(r, k, b):
         return k/r**2 + b
@@ -179,7 +180,7 @@ def get_fourier_plot(files,x_mistake, max_freq, min_freq):
     atten_results = {}
     for freq, filepath in files.items():
         dataset = get_data(filepath)
-        results = analyse_fourier(get_data(filepath),max_freq, min_freq)
+        results = fourier_trans(get_data(filepath),max_freq, min_freq)
         for key, value in results.items():
             atten_results[int(key[0:len(files.keys())])] = value-x_mistake
 
@@ -280,11 +281,11 @@ def week1_main():
 # week 2:
 
 
-# BG_NOISE = pn.read_excel("noise.xlsx")
-# fft_noise_dict = fourier_trans(BG_NOISE.tolist(), 0.0002)[0] #changed from list to dict - check that it works
-# noise_freqs = sorted([f for f in fft_noise_dict.keys() if f>=0])
-# noise_amps = [fft_noise_dict[f] for f in noise_freqs]
-# NOISE_INTERP = interp.interp1d(noise_freqs, noise_amps, bounds_error=False, fill_value=0)
+BG_NOISE = pn.read_excel("noise.xlsx")
+fft_noise_dict = fourier_trans(BG_NOISE.tolist(), 0.0002)[0] #changed from list to dict - check that it works
+noise_freqs = sorted([f for f in fft_noise_dict.keys() if f>=0])
+noise_amps = [fft_noise_dict[f] for f in noise_freqs]
+NOISE_INTERP = interp.interp1d(noise_freqs, noise_amps, bounds_error=False, fill_value=0)
 
 def noise_reduction(data: dict) -> dict:
      # recieves a dict of freq:volt values in frequency doamin
