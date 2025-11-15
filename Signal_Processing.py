@@ -40,8 +40,9 @@ def fourier_trans(data: list, period) -> tuple:
 
 BG_NOISE = pn.read_excel("noise.xlsx")
 fft_noise_dict = fourier_trans(BG_NOISE.iloc[:,1].tolist(), 0.0002)[0]
-noise_freqs = sorted([f for f in fft_noise_dict.keys() if f>=0])
+noise_freqs = sorted([f for f in fft_noise_dict.keys() if f>0])
 noise_amps = [fft_noise_dict[f] for f in noise_freqs]
+noise_amps_db = []
 NOISE_INTERP = interp.interp1d(noise_freqs, noise_amps, bounds_error=False, fill_value=0)
 
 
@@ -189,12 +190,12 @@ def get_min_max_plot(amp_dist_dict: dict, name: str):
 
 files = {"2": "frequency2hz.xlsx",
             "75": "frequency75hz.xlsx"}
-x_mistake = 0.0097
+#x_mistake = 0.0097
 
-get_fourier_plot(files,x_mistake)
-get_min_max_plot(analyze_min_max(get_data(files["2"]), 2), "2Hz")
-get_min_max_plot(analyze_min_max(get_data(files["75"]), 75), "75Hz")
-plt.show()
+#get_fourier_plot(files,x_mistake)
+#get_min_max_plot(analyze_min_max(get_data(files["2"]), 2), "2Hz")
+#get_min_max_plot(analyze_min_max(get_data(files["75"]), 75), "75Hz")
+#plt.show()
 
 #fit test
 #
@@ -214,7 +215,12 @@ plt.show()
 
 # move fourier trans and noise reduction to the beginning of the code
 
-
+plt.plot(noise_freqs, noise_amps)
+plt.xlim(0, 500)
+plt.xlabel("Frequency (Hz)")
+plt.ylabel("Amplitude (dB)")
+plt.grid(True)
+plt.show()
 
 # Aliasing:
 
@@ -229,13 +235,13 @@ def alias_plot(filename):
         #plot:
         x_data = []
         y_data = []
-        for freq, amp in meas_spectrum.items(): #change meas_spectrum to filtered_spectrum to get noise reduction
+        for freq, amp in filtered_spectrum.items(): #change meas_spectrum to filtered_spectrum to get noise reduction
             if freq >= 0:
                 x_data.append(freq)
                 y_data.append(amp)
-        #epsilon = 1e-12 # small epsilon o vaoid log(0)
-      #  for i in range(len(y_data)): # convert V -> dB
-            #y_data[i] = 20 * np.log10(y_data[i] + epsilon)
+        epsilon = 1e-12 # small epsilon to avoid log(0)
+        for i in range(len(y_data)): # convert V -> dB
+            y_data[i] = 20 * np.log10(y_data[i] + epsilon)
         sorted_pairs = sorted(zip(x_data, y_data))
         freqs = [pair[0] for pair in sorted_pairs]
         amps = [pair[1] for pair in sorted_pairs]
@@ -251,7 +257,7 @@ def alias_plot(filename):
 alias_plot("alias.xlsx")
 
 
-plt.plot(noise_freqs, noise_amps)
+
 
 
 
